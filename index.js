@@ -22,6 +22,21 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+async function run() {
+  // database and collection
+  const servicesCollection = client.db("service_review").collection("services");
+  try {
+    app.get("/services", async (req, res) => {
+      const query = {};
+      const cursor = servicesCollection.find(query);
+      const services = await cursor.toArray();
+      res.send(services);
+    });
+  } finally {
+  }
+}
+run().catch((error) => console.error(error));
+
 app.listen(port, () => {
   console.log(`server is running on ${port}`);
 });
