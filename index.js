@@ -22,9 +22,14 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
+// token veryfy
+function tokenVerify(req, res, next) {}
+
 async function run() {
   // database and collection
   const servicesCollection = client.db("service_review").collection("services");
+  const storiesCollection = client.db("service_review").collection("stories");
+
   try {
     // json web token api
     app.post("/jwt", (req, res) => {
@@ -49,6 +54,14 @@ async function run() {
       const cursor = servicesCollection.find(query);
       const services = await cursor.toArray();
       res.send(services);
+    });
+
+    // Story Api
+    app.get("/story", (req, res) => {
+      const query = {};
+      const cursor = storiesCollection.find(query);
+      const stories = cursor.toArray();
+      res.send(stories);
     });
   } finally {
   }
