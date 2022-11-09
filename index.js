@@ -26,7 +26,25 @@ async function run() {
   // database and collection
   const servicesCollection = client.db("service_review").collection("services");
   try {
+    // json web token api
+    app.post("/jwt", (req, res) => {
+      const user = req.body;
+      console.log(user);
+      const token = jwt.sign(user, process.env.ACCESS_KEY_TOKEN, {
+        expiresIn: "1d",
+      });
+      res.send({ token });
+    });
+
+    // service api
     app.get("/services", async (req, res) => {
+      const query = {};
+      const cursor = servicesCollection.find(query);
+      const services = await cursor.limit(3).toArray();
+      res.send(services);
+    });
+
+    app.get("/all_services", async (req, res) => {
       const query = {};
       const cursor = servicesCollection.find(query);
       const services = await cursor.toArray();
