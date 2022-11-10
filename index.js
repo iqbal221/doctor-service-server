@@ -4,7 +4,7 @@ const cors = require("cors");
 var jwt = require("jsonwebtoken");
 const port = process.env.PORT || 5000;
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 
 // middleware
 app.use(cors());
@@ -29,6 +29,7 @@ async function run() {
   // database and collection
   const servicesCollection = client.db("service_review").collection("services");
   const storiesCollection = client.db("service_review").collection("stories");
+  const feedbackCollection = client.db("service_review").collection("feedback");
 
   try {
     // json web token api
@@ -56,12 +57,28 @@ async function run() {
       res.send(services);
     });
 
+    app.get("/all_services/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const cursor = servicesCollection.find(query);
+      const serviceDetails = await cursor.toArray();
+      res.send(serviceDetails);
+    });
+
     // Story Api
-    app.get("/story", (req, res) => {
+    app.get("/stories", async (req, res) => {
       const query = {};
       const cursor = storiesCollection.find(query);
-      const stories = cursor.toArray();
+      const stories = await cursor.toArray();
       res.send(stories);
+    });
+
+    // feedback api
+    app.get("/feedback", async (req, res) => {
+      const query = {};
+      const cursor = feedbackCollection.find(query);
+      const feedback = await cursor.toArray();
+      res.send(feedback);
     });
   } finally {
   }
