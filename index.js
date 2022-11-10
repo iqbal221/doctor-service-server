@@ -80,6 +80,32 @@ async function run() {
       const feedback = await cursor.toArray();
       res.send(feedback);
     });
+
+    app.post("/feedback", async (req, res) => {
+      const query = req.body;
+      const feedback = await feedbackCollection.insertOne(query);
+      res.send(feedback);
+    });
+
+    app.patch("/feedback/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const feedback = req.body;
+      const updateDocument = {
+        $upsert: {
+          status: feedback,
+        },
+      };
+      const result = await feedbackCollection.updateOne(query, updateDocument);
+      res.send(result);
+    });
+
+    app.delete("/feedback/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: ObjectId(id) };
+      const result = await feedbackCollection.deleteOne(query);
+      res.send(result);
+    });
   } finally {
   }
 }
