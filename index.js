@@ -65,6 +65,12 @@ async function run() {
       res.send(serviceDetails);
     });
 
+    app.post("/all_services", async (req, res) => {
+      const query = req.body;
+      const services = await servicesCollection.insertOne(query);
+      res.send(services);
+    });
+
     // Story Api
     app.get("/stories", async (req, res) => {
       const query = {};
