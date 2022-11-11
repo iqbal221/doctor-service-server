@@ -23,7 +23,23 @@ const client = new MongoClient(uri, {
 });
 
 // token veryfy
-function tokenVerify(req, res, next) {}
+function tokenVerify(req, res, next) {
+  const authHeaders = req.headers.authorization;
+
+  if (!authHeaders) {
+    return res.status(401).send({ message: "Unauthorized user" });
+  }
+  const token = authHeaders.split(" ")[1];
+
+  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+    if (err) {
+      return res.status(401).send({ message: "Unauthorized user" });
+    }
+    req.decoded = decoded;
+    console.log(decoded);
+    next();
+  });
+}
 
 async function run() {
   // database and collection
@@ -65,7 +81,7 @@ async function run() {
       res.send(serviceDetails);
     });
 
-    app.post("/all_services", async (req, res) => {
+    app.post("/all_services", tokenVerify, async (req, res) => {
       const query = req.body;
       const services = await servicesCollection.insertOne(query);
       res.send(services);
@@ -87,13 +103,13 @@ async function run() {
       res.send(feedback);
     });
 
-    app.post("/feedback", async (req, res) => {
+    app.post("/feedback", tokenVerify, async (req, res) => {
       const query = req.body;
       const feedback = await feedbackCollection.insertOne(query);
       res.send(feedback);
     });
 
-    app.patch("/feedback/:id", async (req, res) => {
+    app.patch("/feedback/:id", tokenVerify, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const feedback = req.body;
@@ -106,7 +122,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/feedback/:id", async (req, res) => {
+    app.delete("/feedback/:id", tokenVerify, async (req, res) => {
       const id = req.params.id;
       const query = { _id: ObjectId(id) };
       const result = await feedbackCollection.deleteOne(query);
