@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
   serverApi: ServerApiVersion.v1,
 });
 
-// token veryfy
+// token verify
 function tokenVerify(req, res, next) {
   const authHeaders = req.headers.authorization;
 
@@ -31,7 +31,7 @@ function tokenVerify(req, res, next) {
   }
   const token = authHeaders.split(" ")[1];
 
-  jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, function (err, decoded) {
+  jwt.verify(token, process.env.ACCESS_KEY_TOKEN, function (err, decoded) {
     if (err) {
       return res.status(401).send({ message: "Unauthorized user" });
     }
